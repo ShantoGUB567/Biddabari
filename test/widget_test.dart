@@ -1,30 +1,57 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
+import 'package:biddabari/features/course_discovery/data/models/course_model.dart';
+import 'package:biddabari/features/course_discovery/presentation/widgets/course_stats_row.dart';
+import 'package:biddabari/features/course_discovery/presentation/widgets/discount_countdown_badge.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:biddabari/main.dart';
-
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('DiscountCountdownBadge renders countdown text correctly', (WidgetTester tester) async {
+    final now = DateTime.now();
+    final futureEnd = now.add(const Duration(days: 2, hours: 3));
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: DiscountCountdownBadge(
+            startDate: now.subtract(const Duration(hours: 1)),
+            endDate: futureEnd,
+          ),
+        ),
+      ),
+    );
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
     await tester.pump();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Verify timer icon and countdown text exists
+    expect(find.byIcon(Icons.timer_outlined), findsOneWidget);
+    expect(find.textContaining('Offer ends in'), findsOneWidget);
+  });
+
+  testWidgets('CourseStatsRow renders all stats indicators', (WidgetTester tester) async {
+    final course = CourseModel(
+      id: 1,
+      title: 'BCS Advance Course',
+      price: 5000,
+      banner: 'https://example.com/banner.jpg',
+      durationInMonth: '6',
+      totalClass: '85',
+      totalExam: '93',
+      totalLive: '85',
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: CourseStatsRow(course: course),
+        ),
+      ),
+    );
+
+    await tester.pump();
+
+    expect(find.text('6 Months'), findsOneWidget);
+    expect(find.text('85 Classes'), findsOneWidget);
+    expect(find.text('93 Exams'), findsOneWidget);
+    expect(find.text('85 Live'), findsOneWidget);
   });
 }
